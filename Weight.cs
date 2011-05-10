@@ -70,7 +70,7 @@ public class Weight : MonoBehaviour
                     Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0.0f));
 
                     Bounds tempBounds = collider.bounds;
-                    tempBounds *= 2.0f;
+                    tempBounds.extents *= 3.0f;
 
                     if (tempBounds.IntersectRay(ray))
                     {
@@ -83,9 +83,9 @@ public class Weight : MonoBehaviour
                     
                     if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
                     {
-                        float moveAmt = (touch.position - m_fOrigTouchY) * Time.deltaTime * MoveSpeed;
+                        float moveAmt = (touch.position.y - m_fOrigTouchY) * Time.deltaTime * MoveSpeed * 0.5f;
                         _MoveWeightBy(moveAmt);
-                        m_fOrigTouchY = Touch.position.y;
+                        m_fOrigTouchY = touch.position.y;
                     }
                     else if (m_bMoveWithTouch && touch.phase == TouchPhase.Ended)
                     {
@@ -157,7 +157,7 @@ public class Weight : MonoBehaviour
         else if (m_fCurrMoveDist > MaxMoveDist)
             m_fCurrMoveDist = MaxMoveDist;
         
-        transform.position = new Vector3(transform.position.x, Transform.position.y + m_fCurrMoveDist, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y + m_fCurrMoveDist, transform.position.z);
     }
 #endif
 }
