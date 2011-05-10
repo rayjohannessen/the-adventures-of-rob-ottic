@@ -170,13 +170,13 @@ using System.Collections;
 public class MobileInput : MonoBehaviour
 {	
 	void Start ()
-	{		
-		DestroyImmediate(transform.Find("LeftArrow"));
-		DestroyImmediate(transform.Find("RightArrow"));
-		DestroyImmediate(transform.Find("UpArrow"));
-		DestroyImmediate(transform.Find("DownArrow"));
-		DestroyImmediate(transform.Find("A_Btn"));
-		DestroyImmediate(transform.Find("B_Btn"));
+	{
+        DestroyImmediate(transform.Find("LeftArrow").gameObject);
+        DestroyImmediate(transform.Find("RightArrow").gameObject);
+        DestroyImmediate(transform.Find("UpArrow").gameObject);
+        DestroyImmediate(transform.Find("DownArrow").gameObject);
+        DestroyImmediate(transform.Find("A_Btn").gameObject);
+        DestroyImmediate(transform.Find("B_Btn").gameObject);
 	}
 }
 
