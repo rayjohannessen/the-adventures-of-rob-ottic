@@ -47,7 +47,7 @@ public class Player : MonoBehaviour
 
     GUIText m_DiedTxt;
 
-    Trampoline_OneWay m_HitTramp;
+    Trampoline m_HitTramp;
 
     WallJump m_WallJump;
 
@@ -224,7 +224,7 @@ public class Player : MonoBehaviour
     /// Trampoline
     /// </summary>
     /// <param name="_tramp"></param>
-    public void OnTrampEnter(Trampoline_OneWay _tramp)
+    public void OnTrampEnter(Trampoline _tramp)
     {
         m_HitTramp = _tramp;
         m_bBoostValid = true;

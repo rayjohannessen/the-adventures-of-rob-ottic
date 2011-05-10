@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Trampoline_OneWay : MonoBehaviour
+public class Trampoline : MonoBehaviour
 {
     Animation m_BounceAnim;
     Player m_Player;
@@ -24,6 +24,9 @@ public class Trampoline_OneWay : MonoBehaviour
     public float LowAnimMultiplier = 0.75f, HighAnimMultiplier = 1.75f;
 
     bool m_bPlayerInTrigger = false;
+    bool m_bEnteredTop = false;
+    bool m_bEnteredBottom = false;
+    public bool TwoSided = false;   // if true, the player will bounce off when contacting either side
 
     ////////////////////////////////////////////////////////////////////
 
@@ -39,6 +42,14 @@ public class Trampoline_OneWay : MonoBehaviour
 
     void OnTriggerEnter(Collider info)
     {
+        if (m_bEnteredTop || m_bEnteredBottom)
+            return; // don't react if a trigger has already been entered
+
+        if (name == "TrampTriggerTop")
+            m_bEnteredTop = true;
+        else
+            m_bEnteredBottom = true;
+
         Vector3 vNorm = transform.up.normalized;
         Vector3 vVel = m_Player.rigidbody.velocity;
         float velX = Mathf.Abs(vVel.x) * Friction * vNorm.x * TensionConstant;
@@ -85,7 +96,7 @@ public class Trampoline_OneWay : MonoBehaviour
     {
         if (info.gameObject.name == "Player")
         {
-            m_bPlayerInTrigger = false;
+            m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
             m_Player.OnTrampExit();
         }
     }
