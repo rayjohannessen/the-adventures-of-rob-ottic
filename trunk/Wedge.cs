@@ -5,6 +5,7 @@ public class Wedge : MonoBehaviour
 {
 #if UNITY_IPHONE
     bool m_bMoveWithTouch = false;
+	float m_fOrigTouchX;
 #endif
 
     public float MoveSpeed = 1.5f;
@@ -32,6 +33,7 @@ public class Wedge : MonoBehaviour
         m_vParentOffset = transform.parent.transform.position;
         m_vOrigRot = rigidbody.rotation;
         m_vOrigPos = rigidbody.position;
+		Debug.Log("WedgePos:" + m_vOrigPos.x.ToString());
     }
 	
 	void Update() 
@@ -72,22 +74,35 @@ public class Wedge : MonoBehaviour
             // use touch input to move wedge
             else
             {
-                if (Input.GetTouch(0).touchCount > 0)
+                if (Input.touchCount > 0)
                 {
                     Touch touch = Input.GetTouch(0);
-                    Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position));
-
-                    if (collider.bounds.IntersectRay(ray))
+                    Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0.0f));
+					
+					Bounds tempBounds = collider.bounds;
+					tempBounds.extents *= 3.0f;
+					
+                    if (tempBounds.IntersectRay(ray))
                     {
                         if (touch.phase == TouchPhase.Began)
-                           m_bMoveWithTouch = true;
-                    }
+						{
+                           	m_bMoveWithTouch = true;
+							m_fOrigTouchX = touch.position.x;
+							Debug.Log("Hit Wedge with touch");
+						}
+					}
                     
-                    if (m_bMoveWithTouch && touch.phase == TouchPhase.Stationary)
-                    {
-                        Vector3 newPos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position));
-                        _MoveWedgeTo(newPos.x);
+                    if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
+                    {						
+						float moveAmt = (touch.position.x - m_fOrigTouchX) * Time.deltaTime * MoveSpeed * 0.5f;
+                        _MoveWedgeBy(moveAmt);
+						m_fOrigTouchX = touch.position.x;
                     }
+					else if (m_bMoveWithTouch && touch.phase == TouchPhase.Ended)
+					{
+						m_bMoveWithTouch = false;
+						Debug.Log("Ended wedge movement");
+					}
                 }
                 else
                     m_bMoveWithTouch = false;
@@ -130,16 +145,16 @@ public class Wedge : MonoBehaviour
     }
 
 #if UNITY_IPHONE
-    void _MoveWedgeTo(float _posX)
+    void _MoveWedgeBy(float _moveAmtX)
     {
-        if (_posX < -MaxMoveDist)
-            _posX = -MaxMoveDist;  
-        else if (_posX > MaxMoveDist)
-            _posX = MaxMoveDist;
-
-        m_fCurrMoveDist += (_posX - transform.position.x);
+        m_fCurrMoveDist += _moveAmtX;
+		
+        if (m_fCurrMoveDist < -MaxMoveDist)
+            m_fCurrMoveDist = -MaxMoveDist;  
+        else if (m_fCurrMoveDist > MaxMoveDist)
+            m_fCurrMoveDist = MaxMoveDist;
         
-        transform.position = new Vector3(_posX, transform.position.y, transform.position.z);
+        transform.position = new Vector3(m_vParentOffset.x + m_fCurrMoveDist, transform.position.y, transform.position.z);
         BoardObj.hingeJoint.anchor = new Vector3(m_fCurrMoveDist / BoardObj.GetComponent<Board>().HalfBoardLength, BoardObj.hingeJoint.anchor.y, BoardObj.hingeJoint.anchor.z);
     }
 #endif
