@@ -5,6 +5,7 @@ public class Weight : MonoBehaviour
 {
 #if UNITY_IPHONE
     bool m_bMoveWithTouch = false;
+    float m_fOrigTouchY;
 #endif
 
     public float MoveSpeed = 3.0f;
@@ -74,14 +75,17 @@ public class Weight : MonoBehaviour
                     if (tempBounds.IntersectRay(ray))
                     {
                         if (touch.phase == TouchPhase.Began)
+                        {
                             m_bMoveWithTouch = true;
+                            m_fOrigTouchY = touch.position.y;
+                        }
                     }
                     
                     if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
                     {
-                        Vector3 newPos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 0.0f));
-
-                        _MoveWeightTo(newPos.y);
+                        float moveAmt = (touch.position - m_fOrigTouchY) * Time.deltaTime * MoveSpeed;
+                        _MoveWeightBy(moveAmt);
+                        m_fOrigTouchY = Touch.position.y;
                     }
                     else if (m_bMoveWithTouch && touch.phase == TouchPhase.Ended)
                     {
@@ -144,9 +148,9 @@ public class Weight : MonoBehaviour
 
 
 #if UNITY_IPHONE
-    void _MoveWeightTo(float _posY)
+    void _MoveWeightBy(float _moveAmtY)
     {
-        m_fCurrMoveDist += (_posY - transform.position.y);
+        m_fCurrMoveDist += _moveAmtY;
 
         if (m_fCurrMoveDist < -MaxMoveDist)
             m_fCurrMoveDist = -MaxMoveDist;  
