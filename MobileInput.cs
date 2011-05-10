@@ -167,7 +167,7 @@ public class MobileInput : MonoBehaviour
 using UnityEngine;
 using System.Collections;
 
-public class ControllerInput : MonoBehaviour
+public class MobileInput : MonoBehaviour
 {	
 	void Start ()
 	{		
