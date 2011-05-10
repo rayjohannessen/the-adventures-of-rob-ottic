@@ -31,11 +31,11 @@ public class SmoothLookAtFollow : MonoBehaviour
         // do we have two touches? zoom in/out if we haven't started the launch yet
         if (!Game.Instance.LaunchStarted && Game.Instance.MI.TI.CurrTwoTouchOffset != 0.0f)
         {
-			Debug.Log("2touchOS:" + (Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f).ToString());
+			//Debug.Log("2touchOS:" + (Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f).ToString());
 			
             float newZ = ZoomedInPosOS.z - Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f;
 			
-			Debug.Log("New Z:" + newZ.ToString());
+			//Debug.Log("New Z:" + newZ.ToString());
 			
             if (newZ > MinZoomedZ)
                 ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MinZoomedZ);
