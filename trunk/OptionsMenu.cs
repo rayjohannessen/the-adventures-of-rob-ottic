@@ -23,13 +23,15 @@ public class OptionsMenu : MonoBehaviour
 		
 		switch (_option)
 		{
+#if UNITY_IPHONE
 		case Options.eOptions.OPT_USE_ARROWS:
 			{
 			// checkk if they're changing the option right away before Level inits ControllerInput
 				if (Game.Instance.MI != null)				
 					Game.Instance.MI.SetUsedButtons();
 			}break;
-		}	
+#endif
+        }	
 	}
 }
 
