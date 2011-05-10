@@ -13,8 +13,11 @@ public class SeeSaw : MonoBehaviour
     // the launch trigger's offset from the center of the board
     public Vector3 m_LaunchTriggerOffset;
 
+    Trajectory m_Trajectory;
+
     void Start()
     {
+        m_Trajectory = GetComponent<Trajectory>();
     }
 
     void Update()
@@ -26,6 +29,7 @@ public class SeeSaw : MonoBehaviour
         m_WeightObject.GetComponent<Weight>().OnReset();
         m_WedgeObject.GetComponent<Wedge>().OnReset();
         m_BoardObject.GetComponent<Board>().OnReset();
+        m_Trajectory.OnReset();
     }
     public void OnResetToNewCheckpoint(Vector3 _pos)
     {
@@ -34,12 +38,16 @@ public class SeeSaw : MonoBehaviour
         m_WedgeObject.GetComponent<Wedge>().OnResetToNewCheckpoint(_pos);
         m_BoardObject.GetComponent<Board>().OnResetToNewCheckpoint(_pos);
         m_WeightObject.GetComponent<Weight>().OnResetToNewCheckpoint(_pos);
+        m_Trajectory.OnReset();
         m_LaunchTrigger.transform.position = _pos + m_LaunchTriggerOffset;
     }
     public void OnWeightDropped()
     {
         if (m_WeightObject)
+        {
             m_WeightObject.GetComponent<Weight>().OnWeightDropped();
+            m_Trajectory.OnPlayerLaunched();
+        }
     }
 
 
