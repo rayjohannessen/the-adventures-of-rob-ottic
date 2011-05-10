@@ -3,6 +3,10 @@ using System.Collections;
 
 public class Weight : MonoBehaviour 
 {
+#if UNITY_IPHONE
+    bool m_bMoveWithTouch = false;
+#endif
+
     public float MoveSpeed = 3.0f;
     public float MaxMoveDist = 1.35f;
     public float StartXOffset;  // offset from center of board on the x axis
@@ -33,29 +37,70 @@ public class Weight : MonoBehaviour
         if (!Game.Instance.WeightDropped && Game.Instance.PreviewDone)
         {
 #if UNITY_IPHONE
-			if (Game.Instance.MI.BtnDown(MobileInput.BTN_UP) && m_fCurrMoveDist < MaxMoveDist)
+            // use arrows
+            if (Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
+            {
+			    if (Game.Instance.MI.BtnDown(MobileInput.BTN_UP) && m_fCurrMoveDist < MaxMoveDist)
 #else
             if (Input.GetButton("Move Weight Up") && m_fCurrMoveDist < MaxMoveDist)
 #endif
-			{
-                m_fCurrMoveDist += MoveSpeed * Time.deltaTime;
-                transform.position += Vector3.up * MoveSpeed * Time.deltaTime;
-            }
+			    {
+                    m_fCurrMoveDist += MoveSpeed * Time.deltaTime;
+                    transform.position += Vector3.up * MoveSpeed * Time.deltaTime;
+                }
 #if UNITY_IPHONE
-			else if (Game.Instance.MI.BtnDown(MobileInput.BTN_DOWN) && m_fCurrMoveDist > -MaxMoveDist)
+			    else if (Game.Instance.MI.BtnDown(MobileInput.BTN_DOWN) && m_fCurrMoveDist > -MaxMoveDist)
 #else
             else if (Input.GetButton("Move Weight Down") && m_fCurrMoveDist > -MaxMoveDist)
 #endif
-			{
-                m_fCurrMoveDist -= MoveSpeed * Time.deltaTime;
-                transform.position -= Vector3.up * MoveSpeed * Time.deltaTime;
+			    {
+                    m_fCurrMoveDist -= MoveSpeed * Time.deltaTime;
+                    transform.position -= Vector3.up * MoveSpeed * Time.deltaTime;
+                }
+#if UNITY_IPHONE
             }
+            // use touch input to move weight
+            else
+            {
+                if (Input.touchCount > 0)
+                {
+                    Touch touch = Input.GetTouch(0);
+
+                    Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0.0f));
+
+                    Bounds tempBounds = collider.bounds;
+                    tempBounds *= 2.0f;
+
+                    if (tempBounds.IntersectRay(ray))
+                    {
+                        if (touch.phase == TouchPhase.Began)
+                            m_bMoveWithTouch = true;
+                    }
+                    
+                    if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
+                    {
+                        Vector3 newPos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 0.0f));
+
+                        _MoveWeightTo(newPos.y);
+                    }
+                    else if (m_bMoveWithTouch && touch.phase == TouchPhase.Ended)
+                    {
+                        m_bMoveWithTouch = false;
+                    }
+                }
+                else
+                    m_bMoveWithTouch = false;
+            }
+#endif
         }
     }
 
 
     public void OnReset()
     {
+#if UNITY_IPHONE
+        m_bMoveWithTouch = false;
+#endif
         m_fCurrMoveDist = 0.0f;
 
         rigidbody.isKinematic = true;
@@ -64,6 +109,9 @@ public class Weight : MonoBehaviour
     }
     public void OnResetToNewCheckpoint(Vector3 _pos)
     {
+#if UNITY_IPHONE
+        m_bMoveWithTouch = false;
+#endif
         m_vOrigPos.x = _pos.x + StartXOffset;
 
         m_fCurrMoveDist = 0.0f;
@@ -74,6 +122,9 @@ public class Weight : MonoBehaviour
     }
     public void OnWeightDropped()
     {
+#if UNITY_IPHONE
+        m_bMoveWithTouch = false;
+#endif
         rigidbody.isKinematic = false;
         rigidbody.constraints = 0;
         rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
@@ -90,4 +141,19 @@ public class Weight : MonoBehaviour
             Game.Instance.LaunchStarted = true;
         }
     }
+
+
+#if UNITY_IPHONE
+    void _MoveWeightTo(float _posY)
+    {
+        m_fCurrMoveDist += (_posY - transform.position.y);
+
+        if (m_fCurrMoveDist < -MaxMoveDist)
+            m_fCurrMoveDist = -MaxMoveDist;  
+        else if (m_fCurrMoveDist > MaxMoveDist)
+            m_fCurrMoveDist = MaxMoveDist;
+        
+        transform.position = new Vector3(transform.position.x, Transform.position.y + m_fCurrMoveDist, transform.position.z);
+    }
+#endif
 }
