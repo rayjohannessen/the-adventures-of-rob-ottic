@@ -51,7 +51,11 @@ public class MobileInput : MonoBehaviour
 			m_arrPrevTouches[i] = false;
 		
         // buttons cannot be pressed when either the weight or wedge is being moved
-        bool bWedgeOrWeightMoving = GameObject.Find("Weight").GetComponent<Weight>().MoveWithTouch || GameObject.Find("Wedge").GetComponent<Wedge>().MoveWithTouch; 
+        bool bTouchInput =  TI.CurrTwoTouchOffset != 0.0f || 
+							m_TI.SingleTouchMoveAmt.x != 0.0f || 
+							m_TI.SingleTouchMoveAmt.y != 0.0f ||
+							GameObject.Find("Weight").GetComponent<Weight>().MoveWithTouch || 
+							GameObject.Find("Wedge").GetComponent<Wedge>().MoveWithTouch;
 
 		// go through all the buttons
 		// if any touches hit a button on began, stationary, or moved, color it & set its flag
@@ -62,7 +66,7 @@ public class MobileInput : MonoBehaviour
 			foreach (Touch touch in Input.touches)
 			{
 				Vector3 pos = touch.position;
-				if (!bWedgeOrWeightMoving && btn.HitTest(pos))
+				if (!bTouchInput && btn.HitTest(pos))
 				{
 					m_arrPrevTouches[i] = m_bButtonTouched = true;
 					btn.color = m_clrHitClr;
