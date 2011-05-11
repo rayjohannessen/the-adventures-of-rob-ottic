@@ -43,7 +43,9 @@ public class SmoothLookAtFollow : MonoBehaviour
                 ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MaxZoomedZ);
             else
                 ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, newZ);
-        }
+        
+			Game.Instance.ZoomZ = ZoomedInPosOS.z;
+		}
 #endif
 
         if (m_bZoomedIn)    // zoomed in or currently zooming in

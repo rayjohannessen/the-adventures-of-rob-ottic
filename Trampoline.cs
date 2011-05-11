@@ -96,6 +96,7 @@ public class Trampoline : MonoBehaviour
     {
         if (info.gameObject.name == "Player")
         {
+			m_bEnteredTop = m_bEnteredBottom = false;
             m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
             m_Player.OnTrampExit();
         }
