@@ -27,7 +27,7 @@ public class SmoothLookAtFollow : MonoBehaviour
 	float m_fRightLevelXExtent = -50.0f;
 	float m_fPanAmountX = 0.0f;
 	
-    bool m_bZoomedIn = true;
+	bool m_bZoomedIn = true;
 
     void LateUpdate()
     {
@@ -51,8 +51,8 @@ public class SmoothLookAtFollow : MonoBehaviour
             else if (Game.Instance.MI.TI.SingleTouchMoveAmt.x != 0.0f)
             {
 				float moveAmt = Game.Instance.MI.TI.SingleTouchMoveAmt.x;
-				if (transform.position.x + m_fPanAmountX + moveAmt < m_fRightLevelXExtent &&
-				    transform.position.x + m_fPanAmountX + moveAmt > m_fLeftLevelXExtent)
+				if (transform.position.x + moveAmt < m_fRightLevelXExtent &&
+				    transform.position.x + moveAmt > m_fLeftLevelXExtent)
 						m_fPanAmountX += moveAmt;
             }
 		}
@@ -129,4 +129,10 @@ public class SmoothLookAtFollow : MonoBehaviour
 		if (!m_bZoomedIn)
 			m_vTargetLA = GameObject.Find("Level").GetComponent<Level>().GetLevelCenterPt();
     }
+	
+	public float PanAmountX 
+	{
+		get { return this.m_fPanAmountX; }
+		set { m_fPanAmountX = value; }
+	}
 }
