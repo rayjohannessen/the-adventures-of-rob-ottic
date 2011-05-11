@@ -29,22 +29,26 @@ public class SmoothLookAtFollow : MonoBehaviour
     {
 #if UNITY_IPHONE
         // do we have two touches? zoom in/out if we haven't started the launch yet
-        if (!Game.Instance.LaunchStarted && Game.Instance.MI.TI.CurrTwoTouchOffset != 0.0f)
+        if (!Game.Instance.LaunchStarted)
         {
-			//Debug.Log("2touchOS:" + (Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f).ToString());
-			
-            float newZ = ZoomedInPosOS.z - Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f;
-			
-			//Debug.Log("New Z:" + newZ.ToString());
-			
-            if (newZ > MinZoomedZ)
-                ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MinZoomedZ);
-            else if (newZ < MaxZoomedZ)
-                ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MaxZoomedZ);
-            else
-                ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, newZ);
-        
-			Game.Instance.ZoomZ = ZoomedInPosOS.z;
+            if (Game.Instance.MI.TI.CurrTwoTouchOffset != 0.0f)
+            {
+                float newZ = ZoomedInPosOS.z - Game.Instance.MI.TI.CurrTwoTouchOffset * 0.1f;
+    			
+                if (newZ > MinZoomedZ)
+                    ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MinZoomedZ);
+                else if (newZ < MaxZoomedZ)
+                    ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, MaxZoomedZ);
+                else
+                    ZoomedInPosOS = new Vector3(ZoomedInPosOS.x, ZoomedInPosOS.y, newZ);
+            
+			    Game.Instance.ZoomZ = ZoomedInPosOS.z;
+            } 
+            else if (Game.Instance.MI.TI.SingleTouchMoveAmt.x != 0.0f)
+            {
+                ZoomedInPosOS += Vector3.right * Game.Instance.MI.TI.SingleTouchMoveAmt.x;
+                ZoomedInLookAtOS += Vector3.right * Game.Instance.MI.TI.SingleTouchMoveAmt.x;
+            }
 		}
 #endif
 

@@ -145,6 +145,11 @@ public class Wedge : MonoBehaviour
     }
 
 #if UNITY_IPHONE
+	public bool MoveWithTouch
+	{
+		get { return m_bMoveWithTouch; }
+	}
+
     void _MoveWedgeBy(float _moveAmtX)
     {
         m_fCurrMoveDist += _moveAmtX;
