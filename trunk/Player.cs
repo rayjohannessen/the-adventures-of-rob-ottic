@@ -83,7 +83,7 @@ public class Player : MonoBehaviour
 					// we want lower values to increase velocity more quickly
 					// than would higher values
 					//float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
-					float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 2.5f;
+					float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 4.0f;
 					      
 					Quaternion rot;
 					// turn to facing right    
