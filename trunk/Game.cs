@@ -17,6 +17,8 @@ public class Game
     int m_nNumLevelsInWorld;
     int m_nNumWorlds;
     //int m_nNumMenus;
+	
+	float m_fZoomZ;	// if the user changed this manually, keep it at that
 
     PlayerInfo m_PlayerInfo;
     Level m_CurrLevel;
@@ -206,6 +208,12 @@ public class Game
 	public Options Options
 	{
 		get { return m_Options; }	
+	}
+	
+	public float ZoomZ 
+	{
+		get { return this.m_fZoomZ; }
+		set { m_fZoomZ = value; }
 	}
 
     public static Game Instance

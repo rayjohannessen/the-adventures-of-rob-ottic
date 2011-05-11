@@ -48,6 +48,13 @@ public class Level : MonoBehaviour
         m_PlayerCam.LateStart();
         m_PlayerCam.ToggleZoom();
 		
+		// set the game's zoomz to the default zoom on the first level
+		if (Application.loadedLevelName == "1_Level1")
+			m_Game.ZoomZ = m_PlayerCam.ZoomedInPosOS.z;
+		else
+			m_PlayerCam.ZoomedInPosOS = new Vector3(m_PlayerCam.ZoomedInPosOS.x, m_PlayerCam.ZoomedInPosOS.y, m_Game.ZoomZ);
+			
+		
 #if UNITY_IPHONE
 		Game.Instance.MI = GameObject.Find("MobileInputControls").GetComponent<MobileInput>();
 		Game.Instance.AccelInput  = GameObject.Find("MobileInputControls").GetComponent<AccelerometerInput>();
