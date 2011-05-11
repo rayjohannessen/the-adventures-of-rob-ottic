@@ -18,7 +18,7 @@ public class Game
     int m_nNumWorlds;
     //int m_nNumMenus;
 	
-	float m_fZoomZ;	// if the user changed this manually, keep it at that
+	float m_fZoomZ = 0.0f;	// if the user changed this manually, keep it at that
 
     PlayerInfo m_PlayerInfo;
     Level m_CurrLevel;

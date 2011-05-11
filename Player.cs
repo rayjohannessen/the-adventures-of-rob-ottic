@@ -45,7 +45,7 @@ public class Player : MonoBehaviour
 
     Quaternion m_vOrigRot;
 
-    GUIText m_DiedTxt;
+    GameObject m_DiedTxt;
 
     Trampoline m_HitTramp;
 
@@ -255,12 +255,14 @@ public class Player : MonoBehaviour
     public void OnHitSpikes()
     {
         m_bHitSpikes = m_bDied = true;
-        m_DiedTxt.enabled = true;
+        m_DiedTxt.renderer.enabled = true;
+		m_DiedTxt.transform.position = transform.position;
     }
     public void OnHitWater()
     {
         m_bHitWater = m_bDied = true;
-        m_DiedTxt.enabled = true;
+        m_DiedTxt.renderer.enabled = true;
+		m_DiedTxt.transform.position = transform.position;
     }
 
     /// <summary>
@@ -274,8 +276,8 @@ public class Player : MonoBehaviour
         m_vOrigRot = rigidbody.rotation;
         //m_vOrigPos = rigidbody.position;
 
-        m_DiedTxt = GameObject.Find("OnDeath").guiText;
-        m_DiedTxt.enabled = m_bHitSpikes = m_bHitWater = m_bDied = false;
+        m_DiedTxt = GameObject.Find("OnDeath");
+        m_DiedTxt.renderer.enabled = m_bHitSpikes = m_bHitWater = m_bDied = false;
 
         OnReset();
     }
@@ -291,7 +293,7 @@ public class Player : MonoBehaviour
         //rigidbody.Sleep();
         //rigidbody.velocity = Vector3.zero;
         m_bHitSpikes = m_bHitWater = m_bDied = m_bBoostValid = m_bWallJumpStarted = false;
-        m_DiedTxt.enabled = false;
+        m_DiedTxt.renderer.enabled = false;
         rigidbody.transform.rotation = m_vOrigRot;
         rigidbody.transform.position = m_vOrigPos;
         if (m_WallJump != null)

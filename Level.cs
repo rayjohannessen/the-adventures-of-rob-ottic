@@ -49,7 +49,7 @@ public class Level : MonoBehaviour
         m_PlayerCam.ToggleZoom();
 		
 		// set the game's zoomz to the default zoom on the first level
-		if (Application.loadedLevelName == "1_Level1")
+		if (m_Game.ZoomZ == 0.0f)
 			m_Game.ZoomZ = m_PlayerCam.ZoomedInPosOS.z;
 		else
 			m_PlayerCam.ZoomedInPosOS = new Vector3(m_PlayerCam.ZoomedInPosOS.x, m_PlayerCam.ZoomedInPosOS.y, m_Game.ZoomZ);
