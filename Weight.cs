@@ -148,6 +148,11 @@ public class Weight : MonoBehaviour
 
 
 #if UNITY_IPHONE
+	public bool MoveWithTouch
+	{
+		get { return m_bMoveWithTouch; }
+	}
+
     void _MoveWeightBy(float _moveAmtY)
     {
 		float prevMoveDist = m_fCurrMoveDist;
