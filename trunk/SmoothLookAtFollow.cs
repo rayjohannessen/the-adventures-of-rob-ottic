@@ -23,6 +23,10 @@ public class SmoothLookAtFollow : MonoBehaviour
 	public float MaxTotalXDist = 20.0f;
 	public float VelocityInfluenceDamper = 0.5f;
 	
+	float m_fLeftLevelXExtent = -331.0f;
+	float m_fRightLevelXExtent = -50.0f;
+	float m_fPanAmountX = 0.0f;
+	
     bool m_bZoomedIn = true;
 
     void LateUpdate()
@@ -46,8 +50,10 @@ public class SmoothLookAtFollow : MonoBehaviour
             } 
             else if (Game.Instance.MI.TI.SingleTouchMoveAmt.x != 0.0f)
             {
-                ZoomedInPosOS += Vector3.right * Game.Instance.MI.TI.SingleTouchMoveAmt.x;
-                ZoomedInLookAtOS += Vector3.right * Game.Instance.MI.TI.SingleTouchMoveAmt.x;
+				float moveAmt = Game.Instance.MI.TI.SingleTouchMoveAmt.x;
+				if (transform.position.x + m_fPanAmountX + moveAmt < m_fRightLevelXExtent &&
+				    transform.position.x + m_fPanAmountX + moveAmt > m_fLeftLevelXExtent)
+						m_fPanAmountX += moveAmt;
             }
 		}
 #endif
@@ -64,8 +70,8 @@ public class SmoothLookAtFollow : MonoBehaviour
 				velInfluence = MaxTotalXDist;
 			
 			// get the new target look at and position
-			Vector3 newLookAt = m_Player.transform.position + new Vector3(velInfluence, ZoomedInLookAtOS.y, 0.0f);
-			Vector3 newPos = m_Player.transform.position + new Vector3(velInfluence, ZoomedInPosOS.y, ZoomedInPosOS.z);
+			Vector3 newLookAt = m_Player.transform.position + new Vector3(velInfluence + m_fPanAmountX, ZoomedInLookAtOS.y, 0.0f);
+			Vector3 newPos = m_Player.transform.position + new Vector3(velInfluence + m_fPanAmountX, ZoomedInPosOS.y, ZoomedInPosOS.z);
 			
             transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * MoveCamPosSpeed);
 			m_vCurrLA = Vector3.Lerp(m_vCurrLA, newLookAt, Time.deltaTime * MoveCamLASpeed);
@@ -92,6 +98,9 @@ public class SmoothLookAtFollow : MonoBehaviour
 				
         // start zoomed in?
         transform.position = m_Player.transform.position + new Vector3(m_Player.transform.position.x, ZoomedInPosOS.y, ZoomedInPosOS.z);
+		m_fPanAmountX = 0.0f;
+		
+		// TODO:: get extents for panning:
     }
 	
     public void SetNewZoomedOutVars()
@@ -116,6 +125,7 @@ public class SmoothLookAtFollow : MonoBehaviour
     
     public void OnReset()
     {
+		m_fPanAmountX = 0.0f;
 		if (!m_bZoomedIn)
 			m_vTargetLA = GameObject.Find("Level").GetComponent<Level>().GetLevelCenterPt();
     }
