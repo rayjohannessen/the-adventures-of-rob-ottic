@@ -82,7 +82,8 @@ public class Player : MonoBehaviour
 					// move left/right depending on accelerometer x movement,
 					// we want lower values to increase velocity more quickly
 					// than would higher values
-					float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
+					//float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
+					float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 2.5f;
 					      
 					Quaternion rot;
 					// turn to facing right    

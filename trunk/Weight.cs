@@ -83,7 +83,7 @@ public class Weight : MonoBehaviour
                     
                     if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
                     {
-                        float moveAmt = (touch.position.y - m_fOrigTouchY) * Time.deltaTime * MoveSpeed * 0.5f;
+                        float moveAmt = (touch.position.y - m_fOrigTouchY) * Time.deltaTime * MoveSpeed * 0.1f;
                         _MoveWeightBy(moveAmt);
                         m_fOrigTouchY = touch.position.y;
                     }
@@ -150,14 +150,17 @@ public class Weight : MonoBehaviour
 #if UNITY_IPHONE
     void _MoveWeightBy(float _moveAmtY)
     {
+		float prevMoveDist = m_fCurrMoveDist;
         m_fCurrMoveDist += _moveAmtY;
 
         if (m_fCurrMoveDist < -MaxMoveDist)
             m_fCurrMoveDist = -MaxMoveDist;  
         else if (m_fCurrMoveDist > MaxMoveDist)
             m_fCurrMoveDist = MaxMoveDist;
+		
+		_moveAmtY = m_fCurrMoveDist - prevMoveDist;
         
-        transform.position = new Vector3(transform.position.x, transform.position.y + m_fCurrMoveDist, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y + _moveAmtY, transform.position.z);
     }
 #endif
 }
