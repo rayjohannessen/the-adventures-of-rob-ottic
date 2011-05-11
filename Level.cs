@@ -120,6 +120,7 @@ public class Level : MonoBehaviour
 	        if (Input.GetButtonDown("Drop Weight"))
 #endif
 	        {
+				m_PlayerCam.PanAmountX = 0.0f;
 	            m_Game.WeightDropped = true;
                 if (m_SeeSawObject)
 	                m_SeeSawObject.GetComponent<SeeSaw>().OnWeightDropped();
