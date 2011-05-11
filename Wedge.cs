@@ -94,7 +94,7 @@ public class Wedge : MonoBehaviour
                     
                     if (m_bMoveWithTouch && touch.phase == TouchPhase.Moved)
                     {						
-						float moveAmt = (touch.position.x - m_fOrigTouchX) * Time.deltaTime * MoveSpeed * 0.5f;
+						float moveAmt = (touch.position.x - m_fOrigTouchX) * Time.deltaTime * MoveSpeed * 0.35f;
                         _MoveWedgeBy(moveAmt);
 						m_fOrigTouchX = touch.position.x;
                     }
