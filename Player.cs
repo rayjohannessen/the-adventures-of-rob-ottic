@@ -126,24 +126,6 @@ public class Player : MonoBehaviour
 					Quaternion rot = Quaternion.LookRotation(-Vector3.right);
 					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
 	            }
-			
-//             if (m_fResetableTimer < 0.0f && !m_bHealthDecremented && !m_bDied &&
-//                 Mathf.Abs(rigidbody.velocity.x) < ResetVelocityThreshold.x && 
-//                 Mathf.Abs(rigidbody.velocity.y) < ResetVelocityThreshold.y)
-//             {
-//                 m_bHealthDecremented = true;
-//                 rigidbody.Sleep();
-//                 // TODO:: check if the see-saw can be moved to new location, or if it's a complete restart
-//                 Game.Instance.PlayerInfo.Health--;
-//                 if (Game.Instance.PlayerInfo.Health > 0)
-//                 {
-//                     Game.Instance.CurrLevel.ResetLevel(false, true);
-//                 }
-//                 else
-//                 {
-//                     Game.Instance.OnCharacterDied();
-//                 }
-//             }
 #if UNITY_IPHONE
 			}
 #endif
