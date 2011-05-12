@@ -45,10 +45,28 @@ public class Trampoline : MonoBehaviour
         if (m_bEnteredTop || m_bEnteredBottom)
             return; // don't react if a trigger has already been entered
 
+        // depending on the trigger name:
+        // 
+        // Enter from TOP
         if (name == "TrampTriggerTop")
+        {
             m_bEnteredTop = true;
+
+            // disable the bottom pad's box collider if it's two-sided (no bottom collider exists if it's one-sided)
+            if (TwoSided)
+                transform.Find("bottom_pad_collider").gameObject.collider.isTrigger = true;
+        }
+        // Enter from BOTTOM
         else
+        {
             m_bEnteredBottom = true;
+
+            // disable top pad's box collider - there will always be a top_pad_collider
+            //
+            // 1. if it's two-sided, they need to bounce off of the bottom_pad_collider
+            // 2. if it's one-sided, they need to go through
+            transform.Find("top_pad_collider").gameObject.collider.isTrigger = true;
+        }
 
         Vector3 vNorm = transform.up.normalized;
 
@@ -64,7 +82,7 @@ public class Trampoline : MonoBehaviour
 
         // cap Y low
         if (Mathf.Abs(velY) < RestingThresholdForce * vNorm.y)
-            velY = RestingThresholdForce * vNorm.y;//0.0f;
+            velY = RestingThresholdForce * vNorm.y;
         // cap y high
         if (Mathf.Abs(velY) > MaxYForce)
             velY = MaxYForce;
@@ -106,6 +124,16 @@ public class Trampoline : MonoBehaviour
 			m_bEnteredTop = m_bEnteredBottom = false;
             m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
             m_Player.OnTrampExit();
+
+            // the top pad gets re-enabled if it's:
+            // 1. one-sided & this trigger being exited is the top_pad_collider (means they went through from the bottom)
+            // 2. two-sided (means they bounced off the bottom_pad_collider)
+            if ((info.gameObject.name == "top_pad_collider" && !TwoSided) || TwoSided)
+                transform.Find("top_pad_collider").gameObject.collider.isTrigger = false;
+            // the bottom pad gets re-enabled it it's:
+            // 1. two-sided & 
+            if (TwoSided)
+                transform.Find("bottom_pad_collider").gameObject.collider.isTrigger = false;
         }
     }
 
