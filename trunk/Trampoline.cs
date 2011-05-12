@@ -52,16 +52,16 @@ public class Trampoline : MonoBehaviour
         {
             m_bEnteredTop = true;
 
-            // disable the bottom pad's box collider if it's two-sided (no bottom collider exists if it's one-sided)
+            // disable the bottom_pad_collider if it's two-sided (no bottom collider exists if it's one-sided)
             if (TwoSided)
                 transform.Find("bottom_pad_collider").gameObject.collider.isTrigger = true;
         }
         // Enter from BOTTOM
-        else
+        else if (name == "TrampTriggerBottom")
         {
             m_bEnteredBottom = true;
 
-            // disable top pad's box collider - there will always be a top_pad_collider
+            // disable top_pad_collider - there will always be a top_pad_collider
             //
             // 1. if it's two-sided, they need to bounce off of the bottom_pad_collider
             // 2. if it's one-sided, they need to go through
