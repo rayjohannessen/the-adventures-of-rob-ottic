@@ -7,7 +7,7 @@ public class AccelerometerInput : MonoBehaviour
 	int m_nNumAccelEvents;
 	
 	float m_fXmovement;
-	public float XMoveMinThreshold = 0.1f;
+	public float XMoveMinThreshold = 0.095f;
 	public float XMoveMaxThreshold = 0.9f;
 	
 	// Use this for initialization

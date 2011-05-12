@@ -140,7 +140,7 @@ public class Player : MonoBehaviour
 					    x = MaxXVel;
                     else if (x < -MaxXVel)
                         x = -MaxXVel;
-
+					
 					Quaternion rot;
 					// turn to facing right    
 					if (Game.Instance.AccelInput.XMovement > 0.0f)
@@ -150,8 +150,7 @@ public class Player : MonoBehaviour
 					// turn to facing left
 					else
 					{
-						rot = Quaternion.LookRotation(-Vector3.right);	
-						x = -x;
+						rot = Quaternion.LookRotation(-Vector3.right);
 					}
 					
 					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);	
