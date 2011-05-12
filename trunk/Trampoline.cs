@@ -51,6 +51,13 @@ public class Trampoline : MonoBehaviour
             m_bEnteredBottom = true;
 
         Vector3 vNorm = transform.up.normalized;
+
+        // if two-sided & entered through bottom, bounce direction is opposite
+        if (m_bEnteredBottom && TwoSided)
+        {
+            vNorm = -vNorm;
+        }
+
         Vector3 vVel = m_Player.rigidbody.velocity;
         float velX = Mathf.Abs(vVel.x) * Friction * vNorm.x * TensionConstant;
         float velY = Mathf.Abs(vVel.y) * Friction * vNorm.y * TensionConstant;

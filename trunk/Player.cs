@@ -14,6 +14,10 @@ public class Player : MonoBehaviour
     public float BoostDuration = 0.5f;
     public float HandOffset = 3.0f;
 
+    // movement
+    public float MaxXVel = 300.0f;
+    public float AccelerometerScalar = 25.0f;
+
     // wall jump
     public float WallJumpForce = 1000.0f;
     public float WallJumpDelay = 1.0f;
@@ -62,73 +66,6 @@ public class Player : MonoBehaviour
     {
         if (Game.Instance.LaunchStarted)
         {
-            //Debug.Log("Player Vel:" + rigidbody.velocity.ToString());
-// 	        if (Input.GetButton("Character Control Up"))
-// 	        {
-// 	            rigidbody.AddForce(m_vDefaultForceCharControl.x * 0.0f, m_vDefaultForceCharControl.y, 0.0f);
-// 	        }
-// 	        else
-//             if (Input.GetButton("Character Control Down"))
-// 	        {
-// 	            rigidbody.AddForce(m_vDefaultForceCharControl.x * 0.0f, -m_vDefaultForceCharControl.y, 0.0f);
-// 	        }
-// 	        else 
-#if UNITY_IPHONE
-			// use accelerometer
-			if (!Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
-			{
-				if (Game.Instance.AccelInput.HasValidXMovement())
-				{					
-					// move left/right depending on accelerometer x movement,
-					// we want lower values to increase velocity more quickly
-					// than would higher values
-					//float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
-					float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 4.0f;
-					      
-					Quaternion rot;
-					// turn to facing right    
-					if (Game.Instance.AccelInput.XMovement > 0.0f)
-					{
-						rot = Quaternion.LookRotation(Vector3.right);
-					}
-					// turn to facing left
-					else
-					{
-						rot = Quaternion.LookRotation(-Vector3.right);	
-						x = -x;
-					}
-					
-					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);	
-		            rigidbody.AddForce(DefaultForceCharControl.x * x, 0.0f, 0.0f);
-				}
-			}
-			// use buttons	 
-			else
-			{			
-				if (Game.Instance.MI.BtnDown(MobileInput.BTN_RIGHT))
-#else
-            if (Input.GetButton("Character Control Right"))
-#endif
-		        {
-		            rigidbody.AddForce(DefaultForceCharControl.x, 0.0f, 0.0f);
-					// turn to facing right
-					Quaternion rot = Quaternion.LookRotation(Vector3.right);
-					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
-		        }
-#if UNITY_IPHONE
-			else if (Game.Instance.MI.BtnDown(MobileInput.BTN_LEFT))
-#else
-	        	else if (Input.GetButton("Character Control Left"))
-#endif
-				{
-		            rigidbody.AddForce(-DefaultForceCharControl.x, 0.0f, 0.0f);
-					// turn to facing left
-					Quaternion rot = Quaternion.LookRotation(-Vector3.right);
-					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
-	            }
-#if UNITY_IPHONE
-			}
-#endif
             m_fResetableTimer -= Time.deltaTime;
             m_fAddForceTimer -= Time.deltaTime;
             m_fBoostTimer -= Time.deltaTime;
@@ -173,7 +110,82 @@ public class Player : MonoBehaviour
             // TODO:: develop to work with ragdoll, etc
             rigidbody.Sleep();
         }
+        
+            //Debug.Log("Player Vel:" + rigidbody.velocity.ToString());
+// 	        if (Input.GetButton("Character Control Up"))
+// 	        {
+// 	            rigidbody.AddForce(m_vDefaultForceCharControl.x * 0.0f, m_vDefaultForceCharControl.y, 0.0f);
+// 	        }
+// 	        else
+//             if (Input.GetButton("Character Control Down"))
+// 	        {
+// 	            rigidbody.AddForce(m_vDefaultForceCharControl.x * 0.0f, -m_vDefaultForceCharControl.y, 0.0f);
+// 	        }
+// 	        else 
+        if (Game.Instance.LaunchStarted)
+        {
+#if UNITY_IPHONE
+			// use accelerometer
+			if (!Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
+			{
+				if (Game.Instance.AccelInput.HasValidXMovement())
+				{					
+					// move left/right depending on accelerometer x movement,
+					// we want lower values to increase velocity more quickly
+					// than would higher values
+					//float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
+					//float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 4.0f;
+	                float x = Game.Instance.AccelInput.XMovement * AccelerometerScalar;
+                    if (x > MaxXVel)
+					    x = MaxXVel;
+                    else if (x < -MaxXVel)
+                        x = -MaxXVel;
 
+					Quaternion rot;
+					// turn to facing right    
+					if (Game.Instance.AccelInput.XMovement > 0.0f)
+					{
+						rot = Quaternion.LookRotation(Vector3.right);
+					}
+					// turn to facing left
+					else
+					{
+						rot = Quaternion.LookRotation(-Vector3.right);	
+						x = -x;
+					}
+					
+					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);	
+		            rigidbody.velocity = new Vector3(x, rigidbody.velocity.y, 0.0f);
+				}
+			}
+			// use buttons	 
+			else
+			{			
+				if (Game.Instance.MI.BtnDown(MobileInput.BTN_RIGHT))
+#else
+	        if (Input.GetButton("Character Control Right"))
+#endif
+		        {
+		            rigidbody.AddForce(DefaultForceCharControl.x, 0.0f, 0.0f);
+					// turn to facing right
+					Quaternion rot = Quaternion.LookRotation(Vector3.right);
+					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
+		        }
+#if UNITY_IPHONE
+			else if (Game.Instance.MI.BtnDown(MobileInput.BTN_LEFT))
+#else
+	        	else if (Input.GetButton("Character Control Left"))
+#endif
+				{
+		            rigidbody.AddForce(-DefaultForceCharControl.x, 0.0f, 0.0f);
+					// turn to facing left
+					Quaternion rot = Quaternion.LookRotation(-Vector3.right);
+					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
+	            }
+#if UNITY_IPHONE
+			}
+#endif
+        }
 
         if (m_fAddForceTimer > 0.0f)
             rigidbody.AddForce(AdditionalForceOnLaunch);
