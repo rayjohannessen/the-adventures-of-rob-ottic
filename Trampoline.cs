@@ -45,7 +45,7 @@ public class Trampoline : MonoBehaviour
         if (m_bEnteredTop || m_bEnteredBottom)
             return; // don't react if a trigger has already been entered
 
-        Debug.Log("On Trigger Enter" + name);
+        //Debug.Log("On Trigger Enter" + name);
 
         // depending on the trigger name:
         // 
@@ -75,8 +75,10 @@ public class Trampoline : MonoBehaviour
         if (Mathf.Abs(velY) < RestingThresholdForce * vNorm.y)
             velY = RestingThresholdForce * vNorm.y;
         // cap y high
-        if (Mathf.Abs(velY) > MaxYForce)
-            velY = MaxYForce;
+//        if (velY > MaxYForce)
+//            velY = MaxYForce;
+//		else if (velY < -MaxYForce)
+//			velY = -MaxYForce;
 
         // only play anim if bounce was high enough
         if (Mathf.Abs(velX) > 0.0f || Mathf.Abs(velY) > 0.0f)
@@ -100,9 +102,8 @@ public class Trampoline : MonoBehaviour
         // only care about staying if this tramp is one-sided and they're bouncing off the top, or
         if (info.gameObject.name == "Player" && (TwoSided || (!TwoSided && m_bEnteredTop)) )
         {
-            Debug.Log("Trigger stay " + name);
             m_bPlayerInTrigger = true;
-            //Debug.Log("OnTriggerStay: " + name);
+			
             if (m_Player.rigidbody.velocity.y == 0.0f)
             {
                 //Debug.Log("Vel == 0.0");
@@ -114,7 +115,7 @@ public class Trampoline : MonoBehaviour
     {
         if (info.gameObject.name == "Player")
         {
-            Debug.Log("Trigger exit " + name);
+            //Debug.Log("Trigger exit " + name);
 
             m_bEnteredTop = m_bEnteredBottom = false;
             m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
@@ -153,8 +154,10 @@ public class Trampoline : MonoBehaviour
             if (Mathf.Abs(velY) < RestingThresholdForce * vNorm.y)
                 velY = RestingThresholdForce * vNorm.y;
             // cap y high
-            if (Mathf.Abs(velY) > MaxYForce)
-                velY = MaxYForce;
+//	        if (velY > MaxYForce)
+//	            velY = MaxYForce;
+//			else if (velY < -MaxYForce)
+//				velY = -MaxYForce;
 
             // only play anim if bounce was high enough
             if (Mathf.Abs(velX) > 0.0f || Mathf.Abs(velY) > 0.0f)

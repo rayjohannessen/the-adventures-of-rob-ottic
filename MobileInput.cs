@@ -24,6 +24,16 @@ public class MobileInput : MonoBehaviour
 	int m_nEnterFlags;
 	int m_nReleasedFlags;
 		
+	// these positions represent a percentage of the screen width (values from 0 -> 1)
+	public Vector2 LeftArrowPos;
+	public Vector2 RightArrowPos;
+	public Vector2 UpArrowPos;
+	public Vector2 DownArrowPos;
+	public Vector2 ABtnPosWithArrows;
+	public Vector2 ABtnPosWithoutArrows;
+	public Vector2 BBtnPosWithArrows;
+	public Vector2 BBtnPosWithoutArrows;
+	
 	GUITexture[] m_arrBtns;
 	Color m_clrArrowOrig;
 	public Color m_clrHitClr;
@@ -108,7 +118,10 @@ public class MobileInput : MonoBehaviour
 	}
 	
 	public void SetUsedButtons()
-	{
+	{		
+		Debug.Log("SW:" + Screen.width.ToString());
+		Debug.Log("SH:" + Screen.height.ToString());
+		
 		// use all buttons
 		if (Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
 		{
@@ -125,6 +138,19 @@ public class MobileInput : MonoBehaviour
 			m_arrBtns[BTN_DOWN] = transform.Find("DownArrow").guiTexture;			
 			m_arrBtns[BTN_A]	= transform.Find("A_Btn").guiTexture;
 			m_arrBtns[BTN_B]	= transform.Find("B_Btn").guiTexture;
+			
+			float btnWidth = m_arrBtns[BTN_A].pixelInset.width;
+			float btnHeight = m_arrBtns[BTN_A].pixelInset.height;
+			float arrowWidth = m_arrBtns[BTN_LEFT].pixelInset.width;
+			float arrowHeight = m_arrBtns[BTN_LEFT].pixelInset.height;
+			
+			// set the positions
+			transform.Find("LeftArrow").guiTexture.pixelInset = new Rect(Screen.width * LeftArrowPos.x, Screen.height * LeftArrowPos.y, arrowWidth, arrowHeight);
+			transform.Find("RightArrow").guiTexture.pixelInset = new Rect(Screen.width * RightArrowPos.x, Screen.height * RightArrowPos.y, arrowWidth, arrowHeight);
+			transform.Find("UpArrow").guiTexture.pixelInset = new Rect(Screen.width * UpArrowPos.x, Screen.height * UpArrowPos.y, arrowWidth, arrowHeight);
+			transform.Find("DownArrow").guiTexture.pixelInset = new Rect(Screen.width * DownArrowPos.x, Screen.height * DownArrowPos.y, arrowWidth, arrowHeight);
+			transform.Find("A_Btn").guiTexture.pixelInset = new Rect(Screen.width * ABtnPosWithArrows.x, Screen.height * ABtnPosWithArrows.y, btnWidth, btnHeight);
+			transform.Find("B_Btn").guiTexture.pixelInset = new Rect(Screen.width * BBtnPosWithArrows.x, Screen.height * BBtnPosWithArrows.y, btnWidth, btnHeight);
 		}
 		// just use A & B buttons
 		else
@@ -142,8 +168,14 @@ public class MobileInput : MonoBehaviour
 			m_arrBtns = new GUITexture[NUM_BTNS];
 			m_arrPrevTouches = new bool[NUM_BTNS];
 			
-			m_arrBtns[0]	= transform.Find("A_Btn").guiTexture;
-			m_arrBtns[1]	= transform.Find("B_Btn").guiTexture;
+			m_arrBtns[BTN_A]	= transform.Find("A_Btn").guiTexture;
+			m_arrBtns[BTN_B]	= transform.Find("B_Btn").guiTexture;
+			
+			float btnWidth = m_arrBtns[BTN_A].pixelInset.width;
+			float btnHeight = m_arrBtns[BTN_A].pixelInset.height;
+			
+			transform.Find("A_Btn").guiTexture.pixelInset = new Rect(Screen.width * ABtnPosWithoutArrows.x, Screen.height * ABtnPosWithoutArrows.y, btnWidth, btnHeight);
+			transform.Find("B_Btn").guiTexture.pixelInset = new Rect(Screen.width * BBtnPosWithoutArrows.x, Screen.height * BBtnPosWithoutArrows.y, btnWidth, btnHeight);
 		}	
 	}
 	

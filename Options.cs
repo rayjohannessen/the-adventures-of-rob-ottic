@@ -17,7 +17,7 @@ public class Options
 	{
 		m_nFlags = 0;
 		
-		//Utilities.Instance.BitOn(ref m_nFlags, (int)eOptions.OPT_USE_BUTTONS);
+		Utilities.Instance.BitOn(ref m_nFlags, (int)eOptions.OPT_USE_ARROWS);
 	}
 	
 	public void ActivateOption(eOptions _option)
