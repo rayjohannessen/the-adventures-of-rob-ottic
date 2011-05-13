@@ -45,6 +45,8 @@ public class Trampoline : MonoBehaviour
         if (m_bEnteredTop || m_bEnteredBottom)
             return; // don't react if a trigger has already been entered
 
+        Debug.Log("On Trigger Enter" + name);
+
         // depending on the trigger name:
         // 
         // Enter from TOP
@@ -54,18 +56,7 @@ public class Trampoline : MonoBehaviour
 
             // disable the bottom_pad_collider if it's two-sided (no bottom collider exists if it's one-sided)
             if (TwoSided)
-                transform.Find("bottom_pad_collider").gameObject.collider.isTrigger = true;
-        }
-        // Enter from BOTTOM
-        else if (name == "TrampTriggerBottom")
-        {
-            m_bEnteredBottom = true;
-
-            // disable top_pad_collider - there will always be a top_pad_collider
-            //
-            // 1. if it's two-sided, they need to bounce off of the bottom_pad_collider
-            // 2. if it's one-sided, they need to go through
-            transform.Find("top_pad_collider").gameObject.collider.isTrigger = true;
+                transform.parent.Find("bottom_pad_collider").gameObject.collider.isTrigger = true;
         }
 
         Vector3 vNorm = transform.up.normalized;
@@ -106,8 +97,10 @@ public class Trampoline : MonoBehaviour
 
     void OnTriggerStay(Collider info)
     {
-        if (info.gameObject.name == "Player")
+        // only care about staying if this tramp is one-sided and they're bouncing off the top, or
+        if (info.gameObject.name == "Player" && (TwoSided || (!TwoSided && m_bEnteredTop)) )
         {
+            Debug.Log("Trigger stay " + name);
             m_bPlayerInTrigger = true;
             //Debug.Log("OnTriggerStay: " + name);
             if (m_Player.rigidbody.velocity.y == 0.0f)
@@ -121,20 +114,75 @@ public class Trampoline : MonoBehaviour
     {
         if (info.gameObject.name == "Player")
         {
-			m_bEnteredTop = m_bEnteredBottom = false;
+            Debug.Log("Trigger exit " + name);
+
+            m_bEnteredTop = m_bEnteredBottom = false;
             m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
             m_Player.OnTrampExit();
 
-            // the top pad gets re-enabled if it's:
-            // 1. one-sided & this trigger being exited is the top_pad_collider (means they went through from the bottom)
-            // 2. two-sided (means they bounced off the bottom_pad_collider)
-            if ((info.gameObject.name == "top_pad_collider" && !TwoSided) || TwoSided)
-                transform.Find("top_pad_collider").gameObject.collider.isTrigger = false;
+            // the top pad gets re-enabled
+            transform.parent.Find("top_pad_collider").gameObject.collider.isTrigger = false;
+
             // the bottom pad gets re-enabled it it's:
             // 1. two-sided & 
             if (TwoSided)
-                transform.Find("bottom_pad_collider").gameObject.collider.isTrigger = false;
+                transform.parent.Find("bottom_pad_collider").gameObject.collider.isTrigger = false;
         }
+    }
+
+    public void OnBottomTriggerEnter()
+    {
+        m_bEnteredBottom = true;
+
+        // disable top_pad_collider - there will always be a top_pad_collider
+        //
+        // 1. if it's two-sided, they need to bounce off of the bottom_pad_collider
+        // 2. if it's one-sided, they need to go through (there is no bottom_pad_collider in this case)
+        transform.parent.Find("top_pad_collider").gameObject.collider.isTrigger = true;
+        
+        // if two-sided & entered through bottom, bounce direction is opposite
+        if (m_bEnteredBottom && TwoSided)
+        {
+            Vector3 vNorm = transform.up.normalized;
+            vNorm = -vNorm;
+            Vector3 vVel = m_Player.rigidbody.velocity;
+            float velX = Mathf.Abs(vVel.x) * Friction * vNorm.x * TensionConstant;
+            float velY = Mathf.Abs(vVel.y) * Friction * vNorm.y * TensionConstant;
+
+            // cap Y low
+            if (Mathf.Abs(velY) < RestingThresholdForce * vNorm.y)
+                velY = RestingThresholdForce * vNorm.y;
+            // cap y high
+            if (Mathf.Abs(velY) > MaxYForce)
+                velY = MaxYForce;
+
+            // only play anim if bounce was high enough
+            if (Mathf.Abs(velX) > 0.0f || Mathf.Abs(velY) > 0.0f)
+            {
+                // TODO:: maybe play at a speed corresponding to the player's velocity??
+                m_BounceAnim["Take 001"].speed = Mathf.Lerp(LowAnimMultiplier, HighAnimMultiplier, (velX + velY) / MaxAnimInfluenceOfVelocity);
+                //             Debug.Log("Anim Speed:" + m_BounceAnim["Take 001"].speed.ToString());
+                m_BounceAnim.Play();
+            }
+
+            // TODO:: make sure the player is coming from "in front" of the bounce pad
+            // dot determines this
+            Force = new Vector3(velX, velY, 0.0f);
+
+            m_bPlayerInTrigger = true;
+            m_Player.OnTrampEnter(this);
+        }
+        // otherwise, we're going through bottom, no bounce or force applied
+    }
+
+    public void OnBottomTriggerExit()
+    {
+        // the top pad gets re-enabled
+        transform.parent.Find("top_pad_collider").gameObject.collider.isTrigger = false;
+
+        m_bEnteredTop = m_bEnteredBottom = false;
+        m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
+        m_Player.OnTrampExit();
     }
 
     public bool ContinueToApplyForce()
