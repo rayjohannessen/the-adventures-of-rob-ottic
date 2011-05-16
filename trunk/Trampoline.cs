@@ -45,7 +45,7 @@ public class Trampoline : MonoBehaviour
         if (m_bEnteredTop || m_bEnteredBottom)
             return; // don't react if a trigger has already been entered
 
-        //Debug.Log("On Trigger Enter" + name);
+        //Debug.Log("On Trigger Enter: TOP");
 
         // depending on the trigger name:
         // 
@@ -115,7 +115,7 @@ public class Trampoline : MonoBehaviour
     {
         if (info.gameObject.name == "Player")
         {
-            //Debug.Log("Trigger exit " + name);
+            //Debug.Log("On Trigger exit TOP");
 
             m_bEnteredTop = m_bEnteredBottom = false;
             m_bPlayerInTrigger = m_bEnteredBottom = m_bEnteredTop = false;
@@ -134,6 +134,8 @@ public class Trampoline : MonoBehaviour
     public void OnBottomTriggerEnter()
     {
         m_bEnteredBottom = true;
+		
+		//Debug.Log("On Trigger Enter: BOTTOM");
 
         // disable top_pad_collider - there will always be a top_pad_collider
         //
@@ -180,6 +182,8 @@ public class Trampoline : MonoBehaviour
 
     public void OnBottomTriggerExit()
     {
+		//Debug.Log("On Trigger Exit: BOTTOM");
+		
         // the top pad gets re-enabled
         transform.parent.Find("top_pad_collider").gameObject.collider.isTrigger = false;
 

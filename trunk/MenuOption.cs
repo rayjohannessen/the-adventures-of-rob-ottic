@@ -66,6 +66,9 @@ public class MenuOption : MonoBehaviour
 		        renderer.material.color = ButtonHoverColor;		
 		        transform.Find("Text").gameObject.renderer.material.color = TextHoverColor;
 				
+				if (Bolt != null)
+					Bolt.animation.Play("BoltTurnCCW");
+				
                 if (name == "Btn_Quit")
                 {
                     Application.Quit();
