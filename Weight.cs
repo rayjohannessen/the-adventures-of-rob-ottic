@@ -70,7 +70,7 @@ public class Weight : MonoBehaviour
                     Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0.0f));
 
                     Bounds tempBounds = collider.bounds;
-                    tempBounds.extents *= 3.0f;
+                    tempBounds.extents *= 4.0f;
 
                     if (tempBounds.IntersectRay(ray))
                     {

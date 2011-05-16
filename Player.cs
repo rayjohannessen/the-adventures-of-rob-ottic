@@ -2,11 +2,17 @@
 using System.Collections;
 
 public class Player : MonoBehaviour
-{
-    bool m_bHitSpikes, m_bHitWater;
-    bool m_bDied;
-    bool m_bBoostValid;
-    bool m_bWallJumpStarted;
+{	
+	enum ePlayerFlags 
+	{
+		PF_HIT_SPIKES, 
+		PF_HIT_WATER, 
+		PF_DIED, 
+		PF_BOOST_VALID, 
+		PF_WALL_JUMP_STARTED
+	};
+	
+	int m_nFlags;
 
     public float AdditionalForceTime = 1.0f;
     public float ClimbForce = 50.0f;
@@ -35,9 +41,9 @@ public class Player : MonoBehaviour
     float m_fAddForceTimer;
     // need some leeway for resetting the player if they're not moving fast
     // this is used so no reset occurs immediately after launch
-    float m_fResetableTimer;    
+    float m_fResetableTimer;
 
-    public Vector2 DefaultForceCharControl = new Vector2(400, 200);
+	public Vector2 CharControlForce = new Vector2(400, 200);
 
     // when the player's velocity becomes lower than this
     // the seesaw is moved to that location if they have enough health
@@ -59,7 +65,7 @@ public class Player : MonoBehaviour
     {
         m_fApplyJumpTimer = 0.0f;
         m_fBoostTimer = m_fResetableTimer = m_fAddForceTimer = 0.0f;
-        m_bBoostValid = m_bWallJumpStarted = false;
+		m_nFlags = 0;
     }
 
     void Update()
@@ -70,7 +76,7 @@ public class Player : MonoBehaviour
             m_fAddForceTimer -= Time.deltaTime;
             m_fBoostTimer -= Time.deltaTime;
 
-            if (m_bWallJumpStarted)
+            if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED) )
                 m_fWallJumpTimer -= Time.deltaTime;
 
             if (m_fWallJumpTimer < 0.0f && m_fApplyJumpTimer > 0.0f)
@@ -88,7 +94,7 @@ public class Player : MonoBehaviour
             //Debug.Log("Tramp Force:" + m_HitTramp.Force.ToString());
             rigidbody.AddForce(m_HitTramp.Force);
         }
-        if (m_bWallJumpStarted)
+        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED) )
         {
             // don't begin the jump off of the wall until the timer is up
             if (m_fApplyJumpTimer > 0.0f)
@@ -105,7 +111,7 @@ public class Player : MonoBehaviour
                 OnWallJumpEnded();
             }
         }
-        if (m_bDied/*m_bHitSpikes*/)
+        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_DIED) /*m_bHitSpikes*/)
         {
             // TODO:: develop to work with ragdoll, etc
             rigidbody.Sleep();
@@ -128,14 +134,12 @@ public class Player : MonoBehaviour
 			// use accelerometer
 			if (!Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
 			{
-				if (Game.Instance.AccelInput.HasValidXMovement())
+				AccelerometerInput.AccelInfo ai = Game.Instance.AccelInput.GetAccelInfo();
+				
+				//if (ai.ValidXMovement)
 				{					
-					// move left/right depending on accelerometer x movement,
-					// we want lower values to increase velocity more quickly
-					// than would higher values
-					//float x = 1.25f * Mathf.Sqrt(Mathf.Abs(Game.Instance.AccelInput.XMovement * 0.75f));
-					//float x = Game.Instance.AccelInput.XMovement * Game.Instance.AccelInput.XMovement * 4.0f;
-	                float x = Game.Instance.AccelInput.XMovement * AccelerometerScalar;
+					// move left/right depending on accelerometer x movement					
+	                float x = ai.CurrXMoveAmt * AccelerometerScalar;
                     if (x > MaxXVel)
 					    x = MaxXVel;
                     else if (x < -MaxXVel)
@@ -143,7 +147,7 @@ public class Player : MonoBehaviour
 					
 					Quaternion rot;
 					// turn to facing right    
-					if (Game.Instance.AccelInput.XMovement > 0.0f)
+					if (ai.CurrXMoveAmt > 0.0f)
 					{
 						rot = Quaternion.LookRotation(Vector3.right);
 					}
@@ -154,7 +158,7 @@ public class Player : MonoBehaviour
 					}
 					
 					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);	
-		            rigidbody.velocity = new Vector3(x, rigidbody.velocity.y, 0.0f);
+					rigidbody.velocity = new Vector3(x, rigidbody.velocity.y, 0.0f);
 				}
 			}
 			// use buttons	 
@@ -165,7 +169,7 @@ public class Player : MonoBehaviour
 	        if (Input.GetButton("Character Control Right"))
 #endif
 		        {
-		            rigidbody.AddForce(DefaultForceCharControl.x, 0.0f, 0.0f);
+		            rigidbody.AddForce(CharControlForce.x, 0.0f, 0.0f);
 					// turn to facing right
 					Quaternion rot = Quaternion.LookRotation(Vector3.right);
 					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
@@ -176,7 +180,7 @@ public class Player : MonoBehaviour
 	        	else if (Input.GetButton("Character Control Left"))
 #endif
 				{
-		            rigidbody.AddForce(-DefaultForceCharControl.x, 0.0f, 0.0f);
+		            rigidbody.AddForce(-CharControlForce.x, 0.0f, 0.0f);
 					// turn to facing left
 					Quaternion rot = Quaternion.LookRotation(-Vector3.right);
 					transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime);
@@ -189,9 +193,9 @@ public class Player : MonoBehaviour
         if (m_fAddForceTimer > 0.0f)
             rigidbody.AddForce(AdditionalForceOnLaunch);
 #if UNITY_IPHONE
-		if (m_bBoostValid && Game.Instance.MI.BtnPressed(MobileInput.BTN_A))
+		if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_BOOST_VALID) && Game.Instance.MI.BtnPressed(MobileInput.BTN_A))
 #else
-        if (m_bBoostValid && Input.GetButtonDown("Action Btn 1"))
+        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_BOOST_VALID) && Input.GetButtonDown("Action Btn 1"))
 #endif
 			m_fBoostTimer = BoostDuration;
         if (m_fBoostTimer > 0.0f)
@@ -221,13 +225,13 @@ public class Player : MonoBehaviour
     public void OnTrampEnter(Trampoline _tramp)
     {
         m_HitTramp = _tramp;
-        m_bBoostValid = true;
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_BOOST_VALID);
     }
     public void OnTrampExit()
     {
         //Debug.Log("Exiting tramp");
         m_HitTramp = null;
-        m_bBoostValid = false;
+		Utilities.Instance.BitOff(ref m_nFlags, (int)ePlayerFlags.PF_BOOST_VALID);
     }
 
     /// <summary>
@@ -242,7 +246,7 @@ public class Player : MonoBehaviour
         // sleep the player for WallJumpDelay seconds, then apply force
         m_WallJump = _wallJump;
 
-        m_bWallJumpStarted = true;
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED);
 
         m_fApplyJumpTimer = WallJumpForceDuration;
         m_fWallJumpTimer = WallJumpDelay;
@@ -255,7 +259,7 @@ public class Player : MonoBehaviour
     {
         //Debug.Log("Wall Jump Ended");
 
-        m_bWallJumpStarted = false;
+		Utilities.Instance.BitOff(ref m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED);
         m_fWallJumpTimer = m_fApplyJumpTimer = 0.0f;
         m_WallJump = null;
     }
@@ -265,13 +269,16 @@ public class Player : MonoBehaviour
     /// </summary>
     public void OnHitSpikes()
     {
-        m_bHitSpikes = m_bDied = true;
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_HIT_SPIKES);
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_DIED);
         m_DiedTxt.renderer.enabled = true;
 		m_DiedTxt.transform.position = transform.position;
     }
     public void OnHitWater()
     {
-        m_bHitWater = m_bDied = true;
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_HIT_WATER);
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_DIED);
+		
         m_DiedTxt.renderer.enabled = true;
 		m_DiedTxt.transform.position = transform.position;
     }
@@ -288,7 +295,7 @@ public class Player : MonoBehaviour
         //m_vOrigPos = rigidbody.position;
 
         m_DiedTxt = GameObject.Find("OnDeath");
-        m_DiedTxt.renderer.enabled = m_bHitSpikes = m_bHitWater = m_bDied = false;
+        m_DiedTxt.renderer.enabled = false;
 
         OnReset();
     }
@@ -303,7 +310,7 @@ public class Player : MonoBehaviour
         rigidbody.isKinematic = true;
         //rigidbody.Sleep();
         //rigidbody.velocity = Vector3.zero;
-        m_bHitSpikes = m_bHitWater = m_bDied = m_bBoostValid = m_bWallJumpStarted = false;
+		
         m_DiedTxt.renderer.enabled = false;
         rigidbody.transform.rotation = m_vOrigRot;
         rigidbody.transform.position = m_vOrigPos;
@@ -311,6 +318,8 @@ public class Player : MonoBehaviour
             m_WallJump.OnReset();
         m_HitTramp = null;
         m_WallJump = null;
+		
+		m_nFlags = 0;
     }
 
     /// <summary>
@@ -319,12 +328,12 @@ public class Player : MonoBehaviour
     /// 
     public bool BoostValid
     {
-        get { return m_bBoostValid; }
-        set { m_bBoostValid = value; }
+        get { return Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_BOOST_VALID); }
+        //set { Utilities.Instance.	m_bBoostValid = value; }
     }
     public bool WallJumpStarted
     {
-        get { return m_bWallJumpStarted; }
-        set { m_bWallJumpStarted = value; }
+        get { return Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED); }
+        //set { m_bWallJumpStarted = value; }
     }
 }
