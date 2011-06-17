@@ -9,12 +9,12 @@ public class WallJump : MonoBehaviour
     /// the x axis (which way is away from the wall) from -1 to 1
     /// the y is stored in the player
     /// </summary>
-    public float JumpDirection;
+    public float WallJumpDir;
 
     //Player m_Player;
-    GameObject parent;
-
-    void Start()
+    //GameObject parent;
+		
+	void Start()
     {
         m_bCanWallJump = false;
         //m_Player = GameObject.Find("Player").GetComponent<Player>();

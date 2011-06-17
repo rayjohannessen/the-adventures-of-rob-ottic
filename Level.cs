@@ -17,7 +17,10 @@ public class Level : MonoBehaviour
     GameObject m_PlayerObject;
     GameObject m_PlayerCameraObject;
     GameObject m_SeeSawObject;
-
+	GameObject m_PauseBtn;
+	
+	public GameObject m_PauseMenu;
+	
     Game m_Game;
     SmoothLookAtFollow m_PlayerCam;
 
@@ -28,8 +31,9 @@ public class Level : MonoBehaviour
     bool m_bWeightDropped = false;    // player started the sequence, the weight has been dropped
     bool m_bLaunchStarted = false;    // has the LaunchTrigger been hit by the weight yet?
     bool m_bPlayerCameToRest = false;
+	bool m_bPauseMenuActive = false;
 
-    void Start()
+	void Start()
     {
         m_GUIStyle.fontSize = 34;
 
@@ -53,7 +57,8 @@ public class Level : MonoBehaviour
 			m_Game.ZoomZ = m_PlayerCam.ZoomedInPosOS.z;
 		else
 			m_PlayerCam.ZoomedInPosOS = new Vector3(m_PlayerCam.ZoomedInPosOS.x, m_PlayerCam.ZoomedInPosOS.y, m_Game.ZoomZ);
-			
+		
+		m_PauseBtn = GameObject.Find("PauseBtn");
 		
 #if UNITY_IPHONE
 		Game.Instance.MI = GameObject.Find("MobileInputControls").GetComponent<MobileInput>();
@@ -65,8 +70,23 @@ public class Level : MonoBehaviour
 
     void Update()
     {
+		if (m_bPauseMenuActive)
+			return;
+		
         if (Input.GetButtonUp("Escape"))
             m_Game.OnGotoMainMenu();
+		
+#if UNITY_IPHONE
+		if (Input.touchCount > 0)
+		{			
+			Touch touch = Input.GetTouch(0);
+			
+			if (m_PauseBtn.guiTexture.HitTest(touch.position))
+			{
+				ActivatePauseMenu();
+			}
+		}
+#endif
 
         //////////////////////////////////////////////////////////////////////////
         // Level Preview
@@ -82,6 +102,7 @@ public class Level : MonoBehaviour
 
         if (LevelPreviewTime == 0.0f)
             m_Game.Update();
+		
         //////////////////////////////////////////////////////////////////////////
         // Level Reset
         if (m_fResetTimer > 0.0f)
@@ -101,6 +122,9 @@ public class Level : MonoBehaviour
 
     void LateUpdate()
     {
+		if (m_bPauseMenuActive)
+			return;
+		
 		if (Game.Instance.LaunchStarted)
 		{
 #if UNITY_IPHONE
@@ -165,6 +189,13 @@ public class Level : MonoBehaviour
         ResetLevel(false, true);
         //_ResetToNewCheckpoint();
     }
+	public void ActivatePauseMenu()
+	{
+		m_bPauseMenuActive = true;
+		m_PlayerObject.rigidbody.Sleep();
+		// bring up the pause menu after a double tap
+		Instantiate(m_PauseMenu);		
+	}
     
     public Vector3 GetLevelCenterPt()
     {
@@ -255,4 +286,9 @@ public class Level : MonoBehaviour
     {
         get { return m_CurrCheckpoint; }
     }
+	public bool PauseMenuActive 
+	{
+		get { return m_bPauseMenuActive; }
+		set { m_bPauseMenuActive = value; }
+	}
 }

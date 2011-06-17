@@ -37,7 +37,6 @@ public class Checkpoint : MonoBehaviour
         if (_info.gameObject.name == "Player" && !m_bReached)
         {
 			m_fTimer = 0.5f;
-			_info.gameObject.rigidbody.Sleep();
             m_bReached = true;
             m_Game.CurrLevel.OnCheckpointReached(gameObject);
         }

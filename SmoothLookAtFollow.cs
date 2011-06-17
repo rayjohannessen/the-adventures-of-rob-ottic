@@ -31,6 +31,9 @@ public class SmoothLookAtFollow : MonoBehaviour
 
     void LateUpdate()
     {
+		if (Game.Instance.CurrLevel.PauseMenuActive)
+			return;
+		
 #if UNITY_IPHONE
         // do we have two touches? zoom in/out if we haven't started the launch yet
         if (!Game.Instance.LaunchStarted)

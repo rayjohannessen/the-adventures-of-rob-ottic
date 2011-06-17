@@ -52,7 +52,10 @@ public class MobileInput : MonoBehaviour
 
 	
 	void Update ()
-	{			
+	{				
+		if (Game.Instance.CurrLevel.PauseMenuActive)
+			return;
+		
 		// turn off any previously ended flags
 		m_nReleasedFlags = 0;
 		m_bButtonTouched = false;
