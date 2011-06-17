@@ -9,7 +9,8 @@ public class Player : MonoBehaviour
 		PF_HIT_WATER, 
 		PF_DIED, 
 		PF_BOOST_VALID, 
-		PF_WALL_JUMP_STARTED
+		PF_WALL_JUMP_STARTED,
+		PF_ROPE_GRABBED
 	};
 	
 	int m_nFlags;
@@ -89,29 +90,9 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (m_HitTramp != null && m_HitTramp.ContinueToApplyForce())
-        {
-            //Debug.Log("Tramp Force:" + m_HitTramp.Force.ToString());
-            rigidbody.AddForce(m_HitTramp.Force);
-        }
-        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED) )
-        {
-            // don't begin the jump off of the wall until the timer is up
-            if (m_fApplyJumpTimer > 0.0f)
-            {
-	            if (m_fWallJumpTimer < 0.0f)
-	            {
-                    //Debug.Log("Applying wall jump force");
-		            Vector3 dir = new Vector3(m_WallJump.JumpDirection * WallJumpXDirection, WallJumpYDirection, 0.0f);
-                    rigidbody.AddForce(dir * WallJumpForce);
-	            }
-            } 
-            else
-            {
-                OnWallJumpEnded();
-            }
-        }
-        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_DIED) /*m_bHitSpikes*/)
+        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_DIED) /*m_bHitSpikes*/ ||
+		    Game.Instance.CurrLevel.PauseMenuActive ||
+		    Game.Instance.CurrLevel.Resetting)
         {
             // TODO:: develop to work with ragdoll, etc
             rigidbody.Sleep();
@@ -130,9 +111,28 @@ public class Player : MonoBehaviour
 // 	        else 
         if (Game.Instance.LaunchStarted)
         {
+			
+	        if (Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED) )
+	        {
+	            // don't begin the jump off of the wall until the timer is up
+	            if (m_fApplyJumpTimer > 0.0f)
+	            {
+		            if (m_fWallJumpTimer < 0.0f)
+		            {
+	                    //Debug.Log("Applying wall jump force");
+			            Vector3 dir = new Vector3(m_WallJump.WallJumpDir * WallJumpXDirection, WallJumpYDirection, 0.0f);
+	                    rigidbody.AddForce(dir * WallJumpForce);
+		            }
+	            } 
+	            else
+	            {
+	                OnWallJumpEnded();
+	            }
+	        }
 #if UNITY_IPHONE
-			// use accelerometer
-			if (!Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
+			// use accelerometer, to avoid conflicts with accelerometer movement and physics-based wall jump,
+			// only one or the other can be performed at a time
+			else if (!Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
 			{
 				AccelerometerInput.AccelInfo ai = Game.Instance.AccelInput.GetAccelInfo();
 				
@@ -162,7 +162,7 @@ public class Player : MonoBehaviour
 				}
 			}
 			// use buttons	 
-			else
+			if (Game.Instance.Options.IsOptionActive(Options.eOptions.OPT_USE_ARROWS))
 			{			
 				if (Game.Instance.MI.BtnDown(MobileInput.BTN_RIGHT))
 #else
@@ -188,6 +188,12 @@ public class Player : MonoBehaviour
 #if UNITY_IPHONE
 			}
 #endif
+        }
+		
+        if (m_HitTramp != null && m_HitTramp.ContinueToApplyForce())
+        {
+            //Debug.Log("Tramp Force:" + m_HitTramp.Force.ToString());
+            rigidbody.AddForce(m_HitTramp.Force);
         }
 
         if (m_fAddForceTimer > 0.0f)
@@ -282,6 +288,14 @@ public class Player : MonoBehaviour
         m_DiedTxt.renderer.enabled = true;
 		m_DiedTxt.transform.position = transform.position;
     }
+	public void OnRopeGrabbed()
+	{
+		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_ROPE_GRABBED);			
+	}
+	public void OnRopeReleased()
+	{
+		Utilities.Instance.BitOff(ref m_nFlags, (int)ePlayerFlags.PF_ROPE_GRABBED);			
+	}
 
     /// <summary>
     /// Init
@@ -336,4 +350,8 @@ public class Player : MonoBehaviour
         get { return Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_WALL_JUMP_STARTED); }
         //set { m_bWallJumpStarted = value; }
     }
+	public bool GetRopeGrabbed()
+	{
+		return Utilities.Instance.BitTest(m_nFlags, (int)ePlayerFlags.PF_ROPE_GRABBED);
+	}
 }

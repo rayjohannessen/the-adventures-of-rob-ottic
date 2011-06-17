@@ -35,6 +35,9 @@ public class Weight : MonoBehaviour
 	
 	void Update ()
 	{
+		if (Game.Instance.CurrLevel.PauseMenuActive)
+			return;
+		
         if (!Game.Instance.WeightDropped && Game.Instance.PreviewDone)
         {
 #if UNITY_IPHONE
