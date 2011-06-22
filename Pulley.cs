@@ -33,7 +33,7 @@ public class Pulley : MonoBehaviour
 					m_bActivated = false;
 				}
 			}
-			else if (m_bMoveForward)
+			else
 			{
 				transform.position -= Velocity * Time.deltaTime;
 								
