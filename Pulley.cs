@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-// This script is placed on the trigger object
+// This script is placed on the trigger object (the rope)
 
 public class Pulley : MonoBehaviour
 {
