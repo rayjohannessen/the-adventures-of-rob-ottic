@@ -290,10 +290,12 @@ public class Player : MonoBehaviour
     }
 	public void OnRopeGrabbed()
 	{
+		//Debug.Log("OnRopeGrabbed");
 		Utilities.Instance.BitOn(ref m_nFlags, (int)ePlayerFlags.PF_ROPE_GRABBED);			
 	}
 	public void OnRopeReleased()
 	{
+		//Debug.Log("OnRopeReleased");
 		Utilities.Instance.BitOff(ref m_nFlags, (int)ePlayerFlags.PF_ROPE_GRABBED);			
 	}
 
