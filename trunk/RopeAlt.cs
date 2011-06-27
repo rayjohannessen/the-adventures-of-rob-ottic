@@ -17,7 +17,7 @@ public class RopeAlt : MonoBehaviour
 	
     Player m_PlayerScript;	
 	
-	public Pulley PulleyScript;
+	Pulley m_PulleyScript;
 
     ////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ public class RopeAlt : MonoBehaviour
         //m_Hand = GameObject.Find("TestHand");
         m_Player = GameObject.Find("Player");
         m_PlayerScript = m_Player.GetComponent<Player>();
-
+		m_PulleyScript = GetComponent<Pulley>();
         //Debug.Log("Num Links:" + m_lLinks.Length.ToString());
     }
 
@@ -56,8 +56,8 @@ public class RopeAlt : MonoBehaviour
                     //Debug.Log("Link found:" + m_nConnectedLinkIndex.ToString());
 
 					m_PlayerScript.OnRopeGrabbed();
-					if (PulleyScript != null)
-						PulleyScript.SetActivate(false);
+					if (m_PulleyScript != null)
+						m_PulleyScript.SetActivate(false);
 					
                     m_Player.AddComponent<HingeJoint>();
                     //m_Player.rigidbody.constraints = RigidbodyConstraints.None;
@@ -75,11 +75,11 @@ public class RopeAlt : MonoBehaviour
             if (Input.GetButtonUp("Action Btn 1"))
 #endif
 			{				
-				//Debug.Log("Rope released");
+				Debug.Log("Rope released");
 				
 				m_PlayerScript.OnRopeReleased();
-				if (PulleyScript != null)
-					PulleyScript.SetActivate(true);
+				if (m_PulleyScript != null)
+					m_PulleyScript.SetActivate(true);
 				
 				//GameObject hand = GameObject.Find("TestHand");
 				Destroy(m_Player.hingeJoint);
