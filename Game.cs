@@ -21,10 +21,11 @@ public class Game
 	float m_fZoomZ = 0.0f;	// if the user changed this manually, keep it at that
 
     PlayerInfo m_PlayerInfo;
+	
     Level m_CurrLevel;
 	
 	Options m_Options;
-	
+		
 #if UNITY_IPHONE
 	MobileInput m_MobileInputController;
 	AccelerometerInput m_AccelInput;
@@ -45,11 +46,13 @@ public class Game
 	public Game()
     {
         Debug.Log("Game instance created (CTOR)");
+		
         if (instance != null)
             return;
         instance = this;
 
 		m_Options = new Options();
+		
         m_nNumLevelsInWorld = 10;
         m_nNumWorlds = 1;
         m_nCurrWorld = 1;
@@ -110,6 +113,13 @@ public class Game
 
         return m_PlayerInfo;
     }
+	
+	public void Quit()
+	{
+		// save if needed
+		
+		Application.Quit();
+	}
 
     public void OnGoalReached()
     {
